@@ -37,6 +37,7 @@ const commands = {
     password: 'password',
     sendEndpointTextMessage: 'send-endpoint-text-message',
     sendTones: 'send-tones',
+    setLargeVideoParticipant: 'set-large-video-participant',
     setVideoQuality: 'set-video-quality',
     startRecording: 'start-recording',
     stopRecording: 'stop-recording',
@@ -67,6 +68,7 @@ const events = {
     'feedback-prompt-displayed': 'feedbackPromptDisplayed',
     'filmstrip-display-changed': 'filmstripDisplayChanged',
     'incoming-message': 'incomingMessage',
+    'log': 'log',
     'mic-error': 'micError',
     'outgoing-message': 'outgoingMessage',
     'participant-joined': 'participantJoined',
@@ -542,6 +544,13 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
      * the event and value - the listener.
      * Currently we support the following
      * events:
+     * {@code log} - receives event notifications whenever information has
+     * been logged and has a log level specified within {@code config.apiLogLevels}.
+     * The listener will receive object with the following structure:
+     * {{
+     * logLevel: the message log level
+     * arguments: an array of strings that compose the actual log message
+     * }}
      * {@code incomingMessage} - receives event notifications about incoming
      * messages. The listener will receive object with the following structure:
      * {{
@@ -945,6 +954,18 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
      */
     setAudioOutputDevice(label, deviceId) {
         return setAudioOutputDevice(this._transport, label, deviceId);
+    }
+
+    /**
+     * Displays the given participant on the large video. If no participant id is specified,
+     * dominant and pinned speakers will be taken into consideration while selecting the
+     * the large video participant.
+     *
+     * @param {string} participantId - Jid of the participant to be displayed on the large video.
+     * @returns {void}
+     */
+    setLargeVideoParticipant(participantId) {
+        this.executeCommand('setLargeVideoParticipant', participantId);
     }
 
     /**
