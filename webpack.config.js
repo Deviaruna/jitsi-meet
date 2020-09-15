@@ -16,7 +16,7 @@ const detectCircularDeps = process.argv.indexOf('--detect-circular-deps') !== -1
 
 const minimize
     = process.argv.indexOf('-p') !== -1
-        || process.argv.indexOf('--optimize-minimize') !== -1;
+    || process.argv.indexOf('--optimize-minimize') !== -1;
 
 /**
  * Build a Performance configuration object for the given size.
@@ -50,7 +50,7 @@ const config = {
     devtool: 'source-map',
     mode: minimize ? 'production' : 'development',
     module: {
-        rules: [ {
+        rules: [{
             // Transpile ES2015 (aka ES6) to ES5. Accept the JSX syntax by React
             // as well.
 
@@ -103,7 +103,19 @@ const config = {
 
             loader: 'expose-loader?$!expose-loader?jQuery',
             test: /\/node_modules\/jquery\/.*\.js$/
-        }, {
+        },
+        {
+            test: /\.(png|jpeg|gif)$/i,
+            use: [
+                {
+                    loader: 'url-loader',
+                    options: {
+                        limit: 8192
+                    }
+                }
+            ]
+        },
+        {
             // Allow CSS to be imported into JavaScript.
 
             test: /\.css$/,
@@ -127,14 +139,14 @@ const config = {
             }
         }, {
             test: /\.svg$/,
-            use: [ {
+            use: [{
                 loader: '@svgr/webpack',
                 options: {
                     dimensions: false,
                     expandProps: 'start'
                 }
-            } ]
-        } ]
+            }]
+        }]
     },
     node: {
         // Allow the use of the real filename of the module being executed. By
@@ -157,16 +169,16 @@ const config = {
     },
     plugins: [
         analyzeBundle
-            && new BundleAnalyzerPlugin({
-                analyzerMode: 'disabled',
-                generateStatsFile: true
-            }),
+        && new BundleAnalyzerPlugin({
+            analyzerMode: 'disabled',
+            generateStatsFile: true
+        }),
         detectCircularDeps
-            && new CircularDependencyPlugin({
-                allowAsyncCycles: false,
-                exclude: /node_modules/,
-                failOnError: false
-            })
+        && new CircularDependencyPlugin({
+            allowAsyncCycles: false,
+            exclude: /node_modules/,
+            failOnError: false
+        })
     ].filter(Boolean),
     resolve: {
         alias: {
@@ -247,7 +259,7 @@ module.exports = [
             'video-blur-effect': './react/features/stream-effects/blur/index.js'
         },
         output: Object.assign({}, config.output, {
-            library: [ 'JitsiMeetJS', 'app', 'effects' ],
+            library: ['JitsiMeetJS', 'app', 'effects'],
             libraryTarget: 'window',
             filename: '[name].min.js',
             sourceMapFilename: '[name].min.map'
@@ -260,7 +272,7 @@ module.exports = [
             'rnnoise-processor': './react/features/stream-effects/rnnoise/index.js'
         },
         output: Object.assign({}, config.output, {
-            library: [ 'JitsiMeetJS', 'app', 'effects', 'rnnoise' ],
+            library: ['JitsiMeetJS', 'app', 'effects', 'rnnoise'],
             libraryTarget: 'window',
             filename: '[name].min.js',
             sourceMapFilename: '[name].min.map'
@@ -291,12 +303,12 @@ module.exports = [
  */
 function devServerProxyBypass({ path }) {
     if (path.startsWith('/css/') || path.startsWith('/doc/')
-            || path.startsWith('/fonts/')
-            || path.startsWith('/images/')
-            || path.startsWith('/lang/')
-            || path.startsWith('/sounds/')
-            || path.startsWith('/static/')
-            || path.endsWith('.wasm')) {
+        || path.startsWith('/fonts/')
+        || path.startsWith('/images/')
+        || path.startsWith('/lang/')
+        || path.startsWith('/sounds/')
+        || path.startsWith('/static/')
+        || path.endsWith('.wasm')) {
 
         return path;
     }
@@ -306,24 +318,24 @@ function devServerProxyBypass({ path }) {
     /* eslint-disable array-callback-return, indent */
 
     if ((Array.isArray(configs) ? configs : Array(configs)).some(c => {
-            if (path.startsWith(c.output.publicPath)) {
-                    if (!minimize) {
-                        // Since webpack-dev-server is serving non-minimized
-                        // artifacts, serve them even if the minimized ones are
-                        // requested.
-                        return Object.keys(c.entry).some(e => {
-                            const name = `${e}.min.js`;
+        if (path.startsWith(c.output.publicPath)) {
+            if (!minimize) {
+                // Since webpack-dev-server is serving non-minimized
+                // artifacts, serve them even if the minimized ones are
+                // requested.
+                return Object.keys(c.entry).some(e => {
+                    const name = `${e}.min.js`;
 
-                            if (path.indexOf(name) !== -1) {
-                                // eslint-disable-next-line no-param-reassign
-                                path = path.replace(name, `${e}.js`);
+                    if (path.indexOf(name) !== -1) {
+                        // eslint-disable-next-line no-param-reassign
+                        path = path.replace(name, `${e}.js`);
 
-                                return true;
-                            }
-                        });
+                        return true;
                     }
-                }
-            })) {
+                });
+            }
+        }
+    })) {
         return path;
     }
 
